@@ -18,17 +18,31 @@ const registerUser = async (req, res, next) => {
     })
 }
 
+const loginUser = async (req, res, next) => {
+    return new Promise((resolve, reject) => {
+        passport.authenticate("login", {session: false}, async (err, user) => {
+            try {
+                if(err) throw err
+                resolve(user)
+            }catch(error) {
+                reject(error)
+            }
+        })
+    })
+}
+
 
 
 const handleAuth = async (req, res, next) => {
     try {
         const { password } = req.body
-        let user
+        let userAuth
         if (!res.locals.user) {
-            user = await registerUser(req, res, next)
+            userAuth = await registerUser(req, res, next)
         } else {
-            user = res.locals.user
+            userAuth = res.locals.user
         }
+        await loginUser(req, res, next)
 
     } catch (error) {
         console.log(error)
