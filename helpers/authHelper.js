@@ -2,6 +2,13 @@ const { validateEmail, validatePassword } = require("../common/validations")
 const userDb = require("../database/user")
 const authDb = require("../database/auth")
 
+const validateCheckUserExists = (req, res, next) => {
+    const {value, field} = req.body
+    if(!field || !field.trim()) return res.status(400).json({message: "Field is required"})
+    if(!value || !value.trim()) return res.status(400).json({field: `${field} is required`})
+    next()
+}
+
 const validateAuth = (req, res, next) => {
     const { email, password } = req.body
     const error = {}
@@ -39,4 +46,4 @@ const handleUserLogin = async (email, password, done) => {
     }
 }
 
-module.exports = { handleUserRegistration, validateAuth, handleUserLogin }
+module.exports = { handleUserRegistration, validateAuth, handleUserLogin, validateCheckUserExists }

@@ -5,8 +5,8 @@ const checkUserExists = async (req, res, next) => {
     if (res.locals.error) {
       return res.status(400).json(res.locals.error)
     }
-    const { email } = req.body
-    const user = await userDb.getUserByEmail(email)
+    const { value, field } = req.body
+    const user = await userDb.getUser(field, value)
     res.locals.user = user
     next()
   } catch (error) {

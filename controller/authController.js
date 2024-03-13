@@ -2,6 +2,11 @@ const passport = require("passport")
 const userDb = require("../database/user")
 const authDb = require("../database/auth")
 
+const handleCheckUser = (req, res) => {
+    if(!res.locals.user) return res.json({userExists: false})
+    return res.json({userExists: true})
+}
+
 const registerUser = async (req, res, next) => {
     return new Promise((resolve, reject) => {
         passport.authenticate("signup", { session: false }, async (err, user) => {
@@ -20,20 +25,21 @@ const registerUser = async (req, res, next) => {
 
 const loginUser = async (req, res, next) => {
     return new Promise((resolve, reject) => {
-        passport.authenticate("login", {session: false}, async (err, user) => {
+        passport.authenticate("login", {session: false}, async (err, user, message) => {
             try {
                 if(err) throw err
+                if(!user) return res.status(401).json(message)
                 resolve(user)
             }catch(error) {
                 reject(error)
             }
-        })
+        })(req, res, next)
     })
 }
 
 
 
-const handleAuth = async (req, res, next) => {
+const handleRegister = async (req, res, next) => {
     try {
         const { password } = req.body
         let userAuth
@@ -42,7 +48,7 @@ const handleAuth = async (req, res, next) => {
         } else {
             userAuth = res.locals.user
         }
-        await loginUser(req, res, next)
+        const user = await loginUser(req, res, next)
 
     } catch (error) {
         console.log(error)
@@ -51,4 +57,4 @@ const handleAuth = async (req, res, next) => {
 
 }
 
-module.exports = { handleAuth }
+module.exports = { handleRegister, handleCheckUser }

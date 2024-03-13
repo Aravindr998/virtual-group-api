@@ -23,4 +23,9 @@ const getUserByEmail = async (email) => {
     return user
 }
 
-module.exports = { saveUser, getUserByEmail }
+const getUser = async(field, value) => {
+    const user = await authModel.findOne({[field]: value})
+    return user
+}
+
+module.exports = { saveUser, getUserByEmail, getUser }
