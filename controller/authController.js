@@ -57,4 +57,12 @@ const handleRegister = async (req, res, next) => {
 
 }
 
-module.exports = { handleRegister, handleCheckUser }
+const handleLogin = async (req, res, next) => {
+    if(res.locals.error) {
+        return res.status(400).json(res.locals.error)
+    }
+    const user = await loginUser(req, res, next)
+    return res.json(user)
+}
+
+module.exports = { handleRegister, handleCheckUser, handleLogin }

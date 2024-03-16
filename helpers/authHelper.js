@@ -3,7 +3,7 @@ const userDb = require("../database/user")
 const authDb = require("../database/auth")
 
 const validateCheckUserExists = (req, res, next) => {
-    const {value, field} = req.body
+    const {value, field} = req.query
     if(!field || !field.trim()) return res.status(400).json({message: "Field is required"})
     if(!value || !value.trim()) return res.status(400).json({field: `${field} is required`})
     next()
@@ -44,6 +44,10 @@ const handleUserLogin = async (email, password, done) => {
     } catch (error) {
         return done(error)
     }
+}
+
+const generateJWTToken = (email) => {
+    
 }
 
 module.exports = { handleUserRegistration, validateAuth, handleUserLogin, validateCheckUserExists }
