@@ -1,6 +1,7 @@
 const passport = require("passport")
 const userDb = require("../database/user")
 const authDb = require("../database/auth")
+const { generateToken } = require("../helpers/authHelper")
 
 const handleCheckUser = (req, res) => {
     if(!res.locals.user) return res.json({userExists: false})
@@ -65,4 +66,14 @@ const handleLogin = async (req, res, next) => {
     return res.json(user)
 }
 
-module.exports = { handleRegister, handleCheckUser, handleLogin }
+const handleSendOtp = async(req, res, next) => {
+
+}
+
+const generateOTPToken = async(req, res)  => {
+    const {email} = req.body
+    const token = generateToken({email, type: "OTP"})
+    return res.json({token})
+}
+
+module.exports = { handleRegister, handleCheckUser, handleLogin, handleSendOtp, generateOTPToken }

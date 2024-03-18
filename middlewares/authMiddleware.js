@@ -1,4 +1,5 @@
 const userDb = require("../database/user")
+const authDb = require("../database/auth")
 
 const getUserByField = async (req, res, next) => {
   try {
@@ -21,7 +22,7 @@ const checkUserExists = async(req, res, next) => {
       return res.status(400).json(res.locals.error)
     }
     const {email} = req.body
-    const user = await userDb.getUserByEmail(email)
+    const user = await authDb.getUserByEmail(email)
     res.locals.user = user
     next()
   } catch (error) {
