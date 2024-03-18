@@ -24,8 +24,16 @@ const validateAuth = (req, res, next) => {
     next()
 }
 
-const validateSendOtp = (req, res, next) => {
-    const {email, token} = req.body
+const validateSendOtp = async (req, res, next) => {
+    const {email} = req.body
+    if(!email || !email.trim()) {
+        return res.status(400).json({email: "Email is required"})
+    } else if(validateEmail(email)) {
+        return res.status(400).json({message: validateEmail(email)})
+    }
+    const user = await authDb.getUserByEmail(email)
+    if(user) return res.status(403).json({message: "Email already exists"})
+    next()
 }
 
 const validateGetOtpToken = async (req, res, next) => {
@@ -67,7 +75,6 @@ const handleUserLogin = async (email, password, done) => {
 }
 
 const generateToken = (data) => {
-    console.log(process.env.JWT_SECRET_KEY)
     const token = jwt.sign(data, process.env.JWT_SECRET_KEY)
     return token
 }

@@ -1,5 +1,6 @@
 const userDb = require("../database/user")
 const authDb = require("../database/auth")
+const passport = require("passport")
 
 const getUserByField = async (req, res, next) => {
   try {
@@ -31,4 +32,31 @@ const checkUserExists = async(req, res, next) => {
   }
 }
 
-module.exports = { checkUserExists, getUserByField }
+const isUserLoggedin = async (req, res, next) => {
+  passport.authenticate("jwt", {session: false}, async(err, token) => {
+    try {
+      if(!token || token.type !== "auth" || err) throw new Error("Invalid authentication token")
+      req.email = token.email
+      next()
+    } catch (error) {
+      console.log(error)
+      return res.status(401).json({message: "Invalid authentication token"})
+    }
+
+  })(req, res, next)
+}
+
+const authenticateOtpRequest = async (req, res, next) => {
+  passport.authenticate("jwt", {session: false}, async (err, token) => {
+    try {
+      if(!token || err) throw new Error("Invalid authentication token")
+      req.email = token.email
+      next()
+    } catch (error) {
+      console.log(error)
+      return res.status(401).json({message: "Invalid request"})
+    }
+  })(req, res, next)
+}
+
+module.exports = { checkUserExists, getUserByField, isUserLoggedin, authenticateOtpRequest }

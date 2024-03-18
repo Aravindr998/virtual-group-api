@@ -67,7 +67,7 @@ const handleLogin = async (req, res, next) => {
 }
 
 const handleSendOtp = async(req, res, next) => {
-
+    
 }
 
 const generateOTPToken = async(req, res)  => {
