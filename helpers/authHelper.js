@@ -3,6 +3,8 @@ const { validateEmail, validatePassword } = require("../common/validations")
 const userDb = require("../database/user")
 const authDb = require("../database/auth")
 const jwt = require("jsonwebtoken")
+const nodemailer = require("nodemailer")
+const otpGenerator = require("otp-generator")
 
 const validateCheckUserExists = (req, res, next) => {
     const {value, field} = req.query
@@ -79,4 +81,37 @@ const generateToken = (data) => {
     return token
 }
 
-module.exports = { handleUserRegistration, validateAuth, handleUserLogin, validateCheckUserExists, validateSendOtp, validateGetOtpToken, generateToken }
+const sendMail = ({to, subject, text}) => {
+    return new Promise((resolve, reject) => {
+        const transporter = nodemailer.createTransport({
+            service: "Gmail",
+            host: "smtp.gmail.com",
+            port: 465,
+            secure: true,
+            auth: {
+                user: process.env.GOOGLE_MAIL_ADDRESS,
+                pass: process.env.GOOGLE_APP_PASSWORD,
+            }
+        })
+        const mailOptions = {
+            from: process.env.GOOGLE_MAIL_ADDRESS,
+            to,
+            subject,
+            text
+        }
+        transporter.sendMail(mailOptions, (error, info) => {
+            if(error) {
+                reject(error)
+            }
+            resolve(info.response)
+        })
+    })
+    
+}
+
+const generateOTP = () => {
+    const otp = otpGenerator.generate(6, {upperCaseAlphabets: false, lowerCaseAlphabets: false, specialChars: false})
+    return otp
+}
+
+module.exports = { handleUserRegistration, validateAuth, handleUserLogin, validateCheckUserExists, validateSendOtp, validateGetOtpToken, generateToken, sendMail, generateOTP }

@@ -1,7 +1,7 @@
 const passport = require("passport")
 const userDb = require("../database/user")
 const authDb = require("../database/auth")
-const { generateToken } = require("../helpers/authHelper")
+const { generateToken, sendMail, generateOTP } = require("../helpers/authHelper")
 
 const handleCheckUser = (req, res) => {
     if(!res.locals.user) return res.json({userExists: false})
@@ -63,11 +63,24 @@ const handleLogin = async (req, res, next) => {
         return res.status(400).json(res.locals.error)
     }
     const user = await loginUser(req, res, next)
-    return res.json(user)
+    const token = generateToken({email: user.email, type: "Auth"})
+    return res.json({token: token})
 }
 
-const handleSendOtp = async(req, res, next) => {
-    
+const handleSendOtp = async(req, res) => {
+    try {
+        const {email} = req.body
+        const otp = generateOTP()
+        const subject = "Email account verification"
+        const text = `Your OTP for email verification is ${otp}`
+        await authDb.saveOtpInfo({email, otp})
+        await sendMail({to: email, subject, text})
+        res.json({success: true, message: "OTP has been sent to your email"})
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({message: "Something went wrong, please try again later"})
+    }
+
 }
 
 const generateOTPToken = async(req, res)  => {
@@ -75,5 +88,6 @@ const generateOTPToken = async(req, res)  => {
     const token = generateToken({email, type: "OTP"})
     return res.json({token})
 }
+
 
 module.exports = { handleRegister, handleCheckUser, handleLogin, handleSendOtp, generateOTPToken }
