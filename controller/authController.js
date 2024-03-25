@@ -84,10 +84,30 @@ const handleSendOtp = async(req, res) => {
 }
 
 const generateOTPToken = async(req, res)  => {
-    const {email} = req.body
-    const token = generateToken({email, type: "OTP"})
-    return res.json({token})
+    try {
+        const {email} = req.body
+        const token = generateToken({email, type: "OTP"})
+        return res.json({token})
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({message: "Something went wrong, please try again later"})
+    }
 }
 
+const verifyOtp = async(req, res) => {
+    try {
+        const isVerified = await authDb.verifyEmailOtp(req.body)
+        if(!isVerified) {
+            return res.status(400).json({message: "Incorrect otp"})
+        } 
+        const {email, password} = req.body
+        const user = await authDb.saveUser({ email, password })
+        const token =  generateToken({email: user.email, type: "Auth"})
+        return res.json({success: true, token})
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({message: "Something went wrong, please try again later"})
+    }
+}
 
-module.exports = { handleRegister, handleCheckUser, handleLogin, handleSendOtp, generateOTPToken }
+module.exports = { handleRegister, handleCheckUser, handleLogin, handleSendOtp, generateOTPToken, verifyOtp }

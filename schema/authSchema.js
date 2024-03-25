@@ -19,10 +19,6 @@ const authSchema = {
         sparse: true,
         unique: true,
     },
-    emailValidated: {
-        type: Boolean,
-        default: false
-    },
 }
 
 module.exports = authSchema

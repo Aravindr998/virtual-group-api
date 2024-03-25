@@ -114,4 +114,18 @@ const generateOTP = () => {
     return otp
 }
 
-module.exports = { handleUserRegistration, validateAuth, handleUserLogin, validateCheckUserExists, validateSendOtp, validateGetOtpToken, generateToken, sendMail, generateOTP }
+const validateVerifyOtp = (req, res, next) => {
+    const {otp, email, password} = req.body
+    if(!otp || !otp.trim() || otp.length !== 6) {
+        return res.status(400).json({otp: "Invalid OTP"})
+    } 
+    if(!email || !email.trim() || validateEmail(email)) {
+        return res.status(400).json({email: "Invalid email"})
+    }
+    if (validatePassword(password)) {
+        error.password = validatePassword(password)
+    }
+    next()
+}
+
+module.exports = { handleUserRegistration, validateAuth, handleUserLogin, validateCheckUserExists, validateSendOtp, validateGetOtpToken, generateToken, sendMail, generateOTP, validateVerifyOtp }

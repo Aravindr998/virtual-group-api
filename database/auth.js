@@ -8,7 +8,6 @@ const saveUser = async ({ email, password, oauthId, emailValidated = false }) =>
         email,
         password,
         oauthId,
-        emailValidated,
     })
     await user.save()
     return user
@@ -28,4 +27,11 @@ const saveOtpInfo = async({email, otp}) => {
     return otpDoc
 }
 
-module.exports = { saveUser, getUserByEmail, isCorrectPassword, saveOtpInfo }
+const verifyEmailOtp = async({email, otp}) => {
+    const otpDoc = await otpModel.findOne({email})
+    if(!otpDoc) return false
+    const isCorrect = await otpDoc.verifyOtp(otp)
+    return isCorrect
+}
+
+module.exports = { saveUser, getUserByEmail, isCorrectPassword, saveOtpInfo, verifyEmailOtp }
